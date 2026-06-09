@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Message fade-in ─────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.msg-fade-in {
+  animation: fadeIn 0.22s ease forwards;
+}
+
+/* ── Typing indicator dots ───────────────────────────────────────────────── */
+@keyframes typingBounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-5px);
+    opacity: 1;
+  }
+}
+
+.typing-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #8B8A96;
+  animation: typingBounce 1.2s infinite ease-in-out;
+}
+
+/* ── Header avatar pulse ─────────────────────────────────────────────────── */
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(124, 111, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(124, 111, 255, 0);
+  }
+}
+
+.pulse-dot {
+  animation: pulse 2.4s infinite;
+}
+
+/* ── Textarea reset ──────────────────────────────────────────────────────── */
+textarea {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+}
+
+textarea::placeholder {
+  color: #4A4958;
+}
+
+textarea:focus {
+  outline: none;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #252530;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3A3A4A;
+}

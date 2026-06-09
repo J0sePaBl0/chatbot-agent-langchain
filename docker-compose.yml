@@ -1,0 +1,47 @@
+services:
+  mcp:
+    build: .
+    # Override the default CMD to run the FastMCP server instead of the API.
+    command: python -m app.mcp.server
+    ports:
+      - "9001:9001"
+    env_file:
+      - .env
+    volumes:
+      # Named volume: ChromaDB data persists across `docker compose down/up`.
+      - chroma_data:/app/chroma_db
+    healthcheck:
+      # Open a TCP connection to verify the HTTP server is accepting connections.
+      # A full HTTP request would require curl, which isn't in the slim image.
+      test: ["CMD", "python", "-c",
+             "import socket; s=socket.socket(); s.settimeout(2); s.connect(('localhost', 9001)); s.close()"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  api:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # Docker's internal DNS resolves service names — 'mcp' routes to the mcp container.
+      # This is injected as an env var so agent.py never hardcodes localhost.
+      - MCP_SERVER_URL=http://mcp:9001/mcp
+      - CHROMA_PERSIST_DIR=/app/chroma_db
+    volumes:
+      - chroma_data:/app/chroma_db
+      # Bind-mount source for --reload hot-reloading during development.
+      # Remove this in a production compose file.
+      - .:/app
+    depends_on:
+      mcp:
+        # The API won't start until the MCP healthcheck passes.
+        condition: service_healthy
+
+volumes:
+  # Named volume declaration — Docker manages the lifecycle.
+  chroma_data:

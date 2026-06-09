@@ -25,7 +25,7 @@ LangSmith tracing:
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_openai import ChatOpenAI
-from langchain.agents import create_react_agent
+from langchain.agents import create_agent
 from app.config import settings
 from app.models import ChatResponse, SourceChunk
 
@@ -51,38 +51,31 @@ async def run_agent(question: str, collection: str | None = None) -> ChatRespons
         api_key=settings.OPENAI_API_KEY,
     )
 
-    # Open a session to the MCP server for the lifetime of this request.
-    # The 'streamable_http' transport matches FastMCP's HTTP server mode.
-    async with MultiServerMCPClient(
+    # As of langchain-mcp-adapters 0.1.0, MultiServerMCPClient is no longer
+    # a context manager — use client.get_tools() directly instead.
+    client = MultiServerMCPClient(
         {
             "rag-agent": {
                 "url": settings.MCP_SERVER_URL,
                 "transport": "streamable_http",
             }
         }
-    ) as client:
-        tools = client.get_tools()
+    )
+    tools = await client.get_tools()
 
-        # create_react_agent builds a LangGraph StateGraph with two nodes:
-        #   1. "agent" — calls the LLM with the current messages
-        #   2. "tools" — executes any tool calls the LLM requested
-        # It loops until the LLM produces a final answer with no tool calls.
-        graph = create_react_agent(
-            llm,
-            tools=tools,
-            # messages_modifier prepends a SystemMessage to every invocation
-            messages_modifier=SYSTEM_PROMPT,
-        )
+    graph = create_agent(
+        llm,
+        tools=tools,
+        system_prompt=SYSTEM_PROMPT,
+    )
 
-        # Inject the collection name into the question so the agent knows
-        # which ChromaDB collection to pass to query_document.
-        user_content = question
-        if collection:
-            user_content = f"{question}\n\n[Document collection: {collection}]"
+    user_content = question
+    if collection:
+        user_content = f"{question}\n\n[Document collection: {collection}]"
 
-        result = await graph.ainvoke(
-            {"messages": [HumanMessage(content=user_content)]}
-        )
+    result = await graph.ainvoke(
+        {"messages": [HumanMessage(content=user_content)]}
+    )
 
     # ── Parse the output messages ──────────────────────────────────────────
     # result["messages"] is the full conversation: HumanMessage, then

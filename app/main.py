@@ -10,9 +10,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 
-os.environ.setdefault("LANGCHAIN_TRACING_V2", settings.LANGCHAIN_TRACING_V2)
-os.environ.setdefault("LANGCHAIN_API_KEY", settings.LANGCHAIN_API_KEY)
-os.environ.setdefault("LANGCHAIN_PROJECT", settings.LANGCHAIN_PROJECT)
+os.environ.setdefault("LANGSMITH_TRACING", settings.LANGSMITH_TRACING)
+os.environ.setdefault("LANGSMITH_API_KEY", settings.LANGSMITH_API_KEY)
+os.environ.setdefault("LANGSMITH_PROJECT", settings.LANGSMITH_PROJECT)
+os.environ.setdefault("LANGSMITH_ENDPOINT", settings.LANGSMITH_ENDPOINT)
 
 from app.api.routes import router  # noqa: E402 — intentionally after env setup
 

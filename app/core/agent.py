@@ -16,7 +16,7 @@ MCP integration:
   a long-lived connection pool would be an optimisation for high throughput.
 
 LangSmith tracing:
-  When LANGCHAIN_TRACING_V2=true, every node in the LangGraph execution
+  When LANGSMITH_TRACING=true, every node in the LangGraph execution
   (LLM call, tool call, routing decision) is recorded as a span in LangSmith.
   No additional code is needed — the integration is automatic via env vars
   set in main.py before any langchain import.

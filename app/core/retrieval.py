@@ -1,5 +1,6 @@
 import chromadb
 from langchain_core.documents import Document
+from langchain_openai import OpenAIEmbeddings
 
 from app.config import settings
 
@@ -30,8 +31,14 @@ def query_collection(
     # ChromaDB raises an error rather than clamping silently.
     n_results = min(k, count)
 
+    embeddings = OpenAIEmbeddings(
+        model=settings.EMBEDDING_MODEL,
+        api_key=settings.OPENAI_API_KEY,
+    )
+    query_vector = embeddings.embed_query(question)
+
     results = collection.query(
-        query_texts=[question],
+        query_embeddings=[query_vector],
         n_results=n_results,
         include=["documents", "metadatas", "distances"],
     )

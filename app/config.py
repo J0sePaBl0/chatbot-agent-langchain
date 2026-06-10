@@ -7,12 +7,13 @@ class Settings(BaseSettings):
     # Required — no default so startup fails loudly if the key is missing
     OPENAI_API_KEY: str
 
-    # LangSmith tracing — auto-enabled when LANGCHAIN_TRACING_V2="true".
+    # LangSmith tracing — auto-enabled when LANGSMITH_TRACING="true".
     # LangChain reads these directly from os.environ at import time, so
     # main.py must push them into os.environ before any langchain import.
-    LANGCHAIN_API_KEY: str = ""
-    LANGCHAIN_PROJECT: str = "rag-agent"
-    LANGCHAIN_TRACING_V2: str = "false"
+    LANGSMITH_API_KEY: str = ""
+    LANGSMITH_PROJECT: str = "rag-agent"
+    LANGSMITH_TRACING: str = "false"
+    LANGSMITH_ENDPOINT: str = "https://api.smith.langchain.com"
 
     # Chunking parameters — exposed here so they're easy to tune in .env
     # without touching source code
